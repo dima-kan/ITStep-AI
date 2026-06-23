@@ -1,110 +1,137 @@
 import numpy as np
 
-# # створення масиву
-# array = np.array([1, 2, 3, 4, 5])
-#
-# print(array)
-# print(array.shape)  # розмір масиву
-# print(array.dtype)  # тип даних в одній комірці масиву
-#
-# # двовимірний масив(таблиця/матриця)
-# array = np.array([[1, 2, 3, 4, 5],
-#                   [6, 7, 8.5, 9, 10]])
-#
-# print(array)
-# print(array.shape)  # розмір масиву
-# print(array.dtype)  # тип даних в одній комірці масиву
-
-
-# # порівнння швидкості для масивів та списків
-# import time
-#
-#
-# N = 10_000_000
-# nums_list = list(range(N))
-# nums_array = np.array(range(N))
-#
-# start = time.time()
-# res = sum(nums_list)
-# end = time.time()
-#
-# print(f"Python list: {end - start:0.5f} sec")
-#
-# start = time.time()
-# res = np.sum(nums_array)
-# end = time.time()
-#
-# print(f"Numpy array: {end - start:0.5f} sec")
-
-
-# завжди використовувати функції numpy
-# цикл for -- це велике зло
-
-# # створення та розміри
-#
-# nums = np.arange(10, 20, 2)  # масив з діапазону, як в range
+# nums = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=np.int32)
+# print(nums)
 # print(nums)
 #
-# nums = np.zeros(shape=(3, 4))  # масив з нулів
+# print(nums.shape)
+# print(nums.dtype)
+
+
+# nums = np.array(
+#     [[1,2,4],
+#      [5,6,7],
+#      [8,9,10]]
+# )
 # print(nums)
+# print(nums.shape)
+
+# Створіть масив з числами від 1 до 10. Виведіть його, його
+# розмір, тип даних.
+# Змініть розмір масиву на (5, 2). Знову виведіть масив,
+# розмір та тип даних
+
+# nums = np.arange(1,10+1)
+# print(nums)
+# print(nums.shape)
+# print(nums.dtype)
 #
-# # змінити розмір масиву
-# nums = np.arange(10, 20)
-# new_nums = nums.reshape((2, 5))
+# new_nums =nums.reshape(5,2)
 # print(new_nums)
 # print(new_nums.shape)
+# print(new_nums.dtype)
 
-# індексація
-# nums = np.arange(10, 20)
-#
-# print(nums)
-# # print(nums[2])
-# # print(nums[2:5])  # зріз з 2(включно) по 5(не включно)
-# # print(nums[2:7:2])  # зріз з 2(включно) по 7(не включно) крок 2
-# # print(nums[:3])    # перші 3
-# # print(nums[-3:])  # останні 3
-#
-# nums[2] = 0
-#
-# #nums[2:7] = 0
-# nums[2:7] *= -1
-#
-# print(nums)
 
-# nums = np.array([[1, 2, 3, 4, 5],
-#                   [6, 7, 8.5, 9, 10]])
-#
-# print(nums.shape)  # рядки, стовпчики
-# # для двовимірних масивів йже 2 індекса -- рядка та стовпчика
-#
-# print(nums[1, 2])    # 8.5
-# print(nums[1])       # рядок з індексом 1
-# print(nums[1, 2:4])  # рядок з індексом 1, стовпчики з 2 по 4
-# print(nums[0:2, 1:4])  # блок рядки з 0 по 2 та стовпчики з 1 по 4
-# print(nums[:, 3])    # стовпчик 3
-#
-# nums[0:2, 1:4] += 100
+# авдання 2
+# Створіть масив:
+# 1 2 3 4
+# 5 6 7 8
+# 9 10 11 12
+# Використовуючи індекси виведіть:
+# ● число 7
+# ● другий рядок
+# ● останній стовпчик
+# ● праву половину
+# ● жовту область
+# ● замініть жовту область на -1
+# ● зробіть перший стовпчик таким самим як і другий
+
+# nums = np.array(
+#     [
+#         [1,2,3,4],
+#         [5,6,7,8],
+#         [9,10,11,12]
+#     ]
+# )
 # print(nums)
 
-# булеві маски
-nums = np.array([[1, 20, 3, 4, 5],
-                   [6, 7, 8.5, 9, 10]])
+# print(nums[1,2])
+# print(nums[1])
+# print(nums[:,-1])
+# print(nums[:,2:4])
+# print(nums[1:3:,1:3])
+# nums[1:3,1:3] = -1
+# print(nums)
+# print(nums[:,0])
+# nums[:,0] = nums[:,1]
+# print(nums)
 
-mask = nums > 7
 
-print(mask)
-print(mask.dtype)
+# У масиві з попереднього завдання створіть маску для
+# чисел які більші за 6. З її допомогою
+# ● виведіть кількість чисел більших за 6
+# ● виведіть самі числа
+# ● до кожного числа яке відповідає масці додайте 10
+# ● кожне число що не відповідає масці помножте на -1
+# ● замініть ці числа які відповідають масці на відповідні
+# їм з масиву
+# 1 0 1 0
+# 0 1 0 1
+# 1 0 1 0
 
-print(nums[mask])  # дістати числа які відповідають масці(умові)
 
-nums[mask] = 0
-print(nums)
+# mask = nums >6
+# print(mask.sum())
+#
+# nums = nums[mask]
+# print(nums)
+#
+# nums[mask] += 10
+# print(nums)
+#
+# new_mask = ~mask
+# nums[new_mask] *= -1
+# print(nums)
+#
+# new_nums = np.array(
+#     [
+#         [1, 0, 1, 0],
+#         [0, 1, 0, 1],
+#         [1, 0, 1, 0]
+#     ]
+# )
+#
+# nums[new_nums] = new_nums[new_mask]
+# print(nums)
 
-# дістати числа які не відповідають масці(умові)
-# and -- &
-# or  -- |
-# not -- ~
-print(nums[~mask])
 
-# кількість чисел що білше 7
-print(np.sum(mask))
+
+
+
+
+
+# Завдання 6
+# Створіть масив типу uint8
+# 10 4 25 40 200
+# |Помножте всі значення на 2. Результат має бути типу
+# uint8 а всі значення в діапазоні 0-255
+# Помножте всі значення на 1.5. Результат має бути типу
+# uint8 а всі значення в діапазоні 0-255
+
+#
+# nums = np.array([10,4,25,40,200])
+# # nums = nums.astype(np.uint8)
+# #
+# # nums = nums.astype(np.uint64)
+# #
+# # nums *= 2
+# mask = nums > 255
+# # nums[mask] = 255
+#
+# nums = nums.astype(np.float64)
+# nums = nums * 1.5
+# nums[mask] = 255
+# nums = nums.astype(np.uint8)
+#
+# print(nums)
+# print(nums.dtype)

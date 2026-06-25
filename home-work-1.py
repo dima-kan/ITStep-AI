@@ -87,3 +87,4 @@ result[mask] = 255
 result = result.astype(np.uint8)
 
 print(result)
+

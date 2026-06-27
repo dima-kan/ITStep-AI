@@ -1,107 +1,125 @@
-# # дз завдання 3
-# import numpy as np
-#
-# nums = np.array([1, 2, 3], dtype=np.uint8)
-#
-# # намагається помістити результат(типу float64) у ті самі
-# # комірки(типу uint8) що не можливо -- error
-# # nums *= 0.2
-#
-# # спочатку запускається nums * 0.2 -- створюється новий масив
-# # далі запускається nums = ... -- змінюється вказівник
-# nums = nums * 0.2
-#
-# print(nums)
-# print(nums.dtype)
-# import numpy as np
-#
-# # uint8 -- 0-255
-#
-# nums = np.array([2], dtype=np.uint8)
-#
-# res = nums - 10
-# print(res)
-
-
-# # # зображення у opencv
-# import cv2
-#
-# # читання злображення
-# img = cv2.imread(
-#     'data/lesson1/cameraman.png',  # шлях до файлу
-#     cv2.IMREAD_GRAYSCALE # формат зображення
-# )
-#
-#
-# print(type(img))
-# print(img)
-# print(img.shape)
-# print(img.dtype)
-#
-# # показати зображення
-# cv2.imshow(
-#     'image',   # назву
-#     img
-# )
-#
-#
-# # зміна розміру зображення
-# new_img = cv2.resize(img, (500, 500))
-#
-# # зміна у відсотках(на 50%)
-# new_img = cv2.resize(img, None, fx=1.5, fy=1.5)
-#
-# cv2.imshow('resized_image', new_img)
-# # програма чекає поки буде натиснута будь-яка кнопка
-# cv2.waitKey(0)
-# print('End')
-
-
-# import utils
-#
-# utils.lesson1_image()
-
 import cv2
 import numpy as np
+# Завдання 1
+# Відкрийте зображення data/Lenna.png. Виведіть на екран
+# розмір зображення, тип даних, максимальну та мінімальну
+# інтенсивність пікселів, саме зображення з підписом.
 
-# читання злображення
-img = cv2.imread(
-    'data/lesson1/cameraman.png',  # шлях до файлу
-    cv2.IMREAD_GRAYSCALE # формат зображення
+
+
+image = cv2.imread(
+    "data/lesson1/Lenna.png",
+    cv2.IMREAD_GRAYSCALE,
 )
-
-img = cv2.resize(img, (500, 500))
-
-# збільшення значення пікселів
-
-cv2.imshow('original', img)
-
-new_img = img.astype(np.int16)
-new_img -= 80
-
-# пікселів які опинились за межами діапазону 0-255
-# треба повернути назад
-
-# mask_255 = new_img > 255
-# new_img[mask_255] = 255
-# mask_0 = new_img < 0
-# new_img[mask_0] = 0
-
-# # те саме
-# new_img = np.clip(new_img, 0, 255)
 #
-# new_img = new_img.astype(np.uint8)
+# print(image.dtype)
+# print(image.shape)
 #
-# cv2.imshow('new', new_img)
+# print(image.max())
+# print(image.min())
 
-# частина зображення з 200 по 400 рядок
-segment = img[200:400]  # ті самі пікселі що і в img
 
-cv2.imshow('segment', segment)
 
-segment += 80
 
-cv2.imshow('original', img)
-cv2.imshow('segment', segment)
 
+
+# Завдання 2
+# Відкрийте зображення data/Lenna.png. Виведіть на екран
+# такі зображень:
+#  Верхній лівий кут розміром 100х50
+
+
+# segment = image[0:101,0:51]
+#
+#
+# cv2.imshow("segment", segment)
+# cv2.waitKey(0)
+
+#  Центральний квадрат розміром 100х100
+
+# segment2 = image[78:178,78:178]
+#
+#
+# cv2.imshow("segment", segment2)
+# print(segment2.shape)
+# cv2.waitKey(0)
+
+#  Верхню половину
+
+# segment3 = image[:128,:256]
+# cv2.imshow("segment", segment3)
+# print(segment3.shape)
+# cv2.imshow("segment", segment3)
+# cv2.waitKey(0)
+#  Нижню половину
+
+# segment4 = image[128:257,:256]
+# cv2.imshow("segment", segment4)
+# print(segment4.shape)
+# cv2.imshow("segment", segment4)
+# cv2.waitKey(0)
+
+
+#  Ліву половину
+
+# segment5 = image[:256,0:129]
+# cv2.imshow("segment", segment5)
+# print(segment5.shape)
+# cv2.imshow("segment", segment5)
+# cv2.waitKey(0)
+
+
+#  Праву половину
+
+
+# segment6 = image[:256,128:257]
+# cv2.imshow("segment", segment6)
+# print(segment6.shape)
+# cv2.imshow("segment", segment6)
+# cv2.waitKey(0)
+
+# image[:20, :] =0
+# image[235:256,:]= 255
+# cv2.imshow("Lenna", image)
+# cv2.waitKey(0)
+
+# image[:, 0:20] = 0
+# image[:,240:257]= 0
+# cv2.imshow("image", image)
+# cv2.waitKey(0)
+
+
+# image[:50,:] = 0
+# image[220:257,:]= 0
+# image[:,0:60] = 0
+# image[:,200:257] = 0
+# cv2.imshow("image", image)
+# cv2.waitKey(0)
+
+# вдання 4
+# Відкрийте зображення data/Lenna.png. Створіть маску для
+# пік селів з інтенсивністю більше 128 та виведіть її. Також
+# виведіть заперечення цієї маски.
+# На оригінальному зображенні, усі пікселі які не
+# відповідають масці замініть на 0 та виведіть результат
+
+
+# mask = image > 128
+# print(mask)
+
+# mask = mask.astype(np.uint8)
+# print(mask)
+#
+# cv2.imshow("image", mask*255)
+# cv2.waitKey(0)
+
+# image[~mask] = 0
+# cv2.imshow("image",image)
+# cv2.waitKey(0)
+
+
+new_image = (image/255)**2 * 255
+print(new_image.dtype)
+new_image = new_image.astype(np.uint8)
+cv2.imshow("image", new_image)
 cv2.waitKey(0)

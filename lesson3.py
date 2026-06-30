@@ -1,136 +1,60 @@
-# # дз
-# result1 = img.copy()
-# result1[:] = 0
-#
-# # те саме(створити масив 0 такого ж розміру як img)
-# result1 = np.zero_like(img)
-#
-# # проблема зі знаками \
-# r"C:\ITSTEP\ITStep-AI\data\lesson1\baboo.jpg"
-
-
-# # колір
+# import numpy as np
 # import cv2
+# # Завдання 1
+# # Відкрийте зображення data/lesson2/marbles.png.
+# # Використайте кольорову сегментацію для отримання масок до
+# # кульок:
+# #  синього кольору
+# #  зеленого і червоного
+# #  чорного
+# #  білого
+# #  усіх кульо
 #
-# # читати як чорно біле
-# img = cv2.imread('data/lesson2/lego.jpg', cv2.IMREAD_GRAYSCALE)
-# img = cv2.resize(img, (500, 500))
 #
-# print(img.shape)
-# print(img.dtype)
+# image = cv2.imread('data/lesson2/marbles.png')
 #
-# cv2.imshow('gray', img)
+# cv2.imshow('image', image)
+# hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 #
-# # читати як кольорове
-# img = cv2.imread('data/lesson2/lego.jpg', cv2.IMREAD_COLOR)
-# img = cv2.resize(img, (500, 500))
+# # lower = (0, 0, 0)
+# # upper = (100, 100, 50)
+# # mask = cv2.inRange(hsv, lower, upper)
+# # cv2.imshow('mask', mask)
+# # cv2.waitKey(0)
 #
-# print(img.shape)
-# print(img.dtype)
-#
-# # піксель формат bgr
-# print(img[220, 220]) # [60 75 230]
-#
-# cv2.imshow('color', img)
-#
-# # дістати черіоний колір з зображення
-# # img.shape = (рядки, стовпчики, колір)
-# red_part = img[:, :, 2]
-# green_part = img[:, :, 1]
-# blue_part = img[:, :, 0]
-#
-# print(red_part.shape)
-# print(red_part.dtype)
-#
-# # якщо в shape 2 числа -- показує як чорнобіле зображення
-# cv2.imshow('wrong red', red_part)
-#
-# # правильно
-# red_part = img.copy()
-# # первести синій та зелений в 0
-# red_part[:, :, 0] = 0  # blue
-# red_part[:, :, 1] = 0  # blue
-#
-# cv2.imshow('red', red_part)
+# lower = (0, 0, 200)
+# upper = (150, 30, 255)
+# mask = cv2.inRange(hsv, lower, upper)
+# cv2.imshow('mask', mask)
 # cv2.waitKey(0)
 #
 #
-# # # rgb(bgr)
-# # import utils
+#
+#
 # #
-# # utils.lesson2_bgr_range()
-
-# кольоровий простір hsv
-# h -- колір  (hue)  -- кут / 2
-# s -- насиченість  (saturation)
-# v -- яскравість   (value)
-
-# import utils
+# # lower = (0,100,150)
+# # upper = (7,255,255) # червоний
+# # mask_red = cv2.inRange(hsv, lower, upper)
+# #
+# # lower = (35,90,80)
+# # upper = (90,255,255)
+# #
+# # mask_green = cv2.inRange(hsv, lower, upper)
+# # cv2.imshow('mask_green', mask_green)
+# #
+# # cv2.imshow('mask_red', mask_red)
+# #
+# # mask_red_green = cv2.bitwise_or(mask_red, mask_green)
+# # cv2.imshow('mask_red_green', mask_red_green)
+# # cv2.waitKey(0)
 #
-# utils.lesson2_hsv_range()
-
-# import cv2
-#
-#
-# img = cv2.imread('data/lesson2/lego.jpg', cv2.IMREAD_COLOR)
-# img = cv2.resize(img, (500, 500))
-#
-# # img -- bgr
-# cv2.imshow('bgr', img)
-#
-# # перевести в hsv
-# hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-#
-# print(hsv.shape)
-# print(hsv.dtype)
-#
-# # # думає що hsv -- bgr
-# # cv2.imshow('hsv', hsv)
-#
-# # h -- 100-130
-# # s -- 150-255
-# # v -- 140-255
-# mask_blue = cv2.inRange(
-#     hsv,
-#     (100, 150, 140), # нижні межі
-#     (130, 255, 255)  # верхні межі
-# )
-#
-# print(mask_blue.shape)
-# print(mask_blue.dtype)
-#
-# cv2.imshow('mask_blue', mask_blue)
-#
-# cv2.waitKey(0)
-
-
-import cv2
-
-
-img = cv2.imread('data/lesson2/bio_low_contrast.jpg', cv2.IMREAD_GRAYSCALE)
-img = cv2.resize(img, (500, 500))
-
-# img -- bgr
-cv2.imshow('origin', img)
-
-
-# наведення різкості(конраст)
-# вирівнювання гістрограм(працює лише для чорнобілих)
-result = cv2.equalizeHist(img)
-
-cv2.imshow('result', result)
-
-img = cv2.imread('data/lesson2/cell.png')
-hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-# вирівнюємо яскравість
-value = hsv[:, :, 2]
-new_value = cv2.equalizeHist(value)
-hsv[:, :, 2] = new_value
-
-# перевести назад в bgr
-new_img = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-
-cv2.imshow('contrast', new_img)
-cv2.imshow('origin', img)
-cv2.waitKey(0)
+# # lower = (100, 120, 110)
+# # upper = (130, 255, 255)
+# #
+# #
+# #
+# # mask = cv2.inRange(hsv, lower, upper)
+# #
+# # cv2.imshow('mask', mask)
+# #
+# # cv2.waitKey(0)

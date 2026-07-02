@@ -1,107 +1,125 @@
-# згортка
-
-#ЗНО(НМТ)
-# математика -- 180
-# укр мова -- 175
-# англ мова -- 190
-
-# коефіцієнти( важливість) -- вагами важливості
-# математика -- 60%
-# укр мова -- 10%
-# англ мова -- 30%
-
-# оцінку -- (180 + 175 + 190) / 3  середнє арифметичне
-# оцінку -- 180*0.6 + 175*0.1 + 190*0.3 -- середнє зважене
-# grades = [180, 175, 190]
-# coefs = [0.6, 0.1, 0.3]
-
-# згортка
-import cv2
-import utils
-import numpy as np
-
-img = cv2.imread('data/lesson3/darken_page.jpg')
-
-# # ядро згортки(фільтр, масив з коефіцієнтами)
-# kernel = np.array(
-#     [[0.1, 0.1, 0.1],
-#      [0.1, 0.1, 0.1],
-#      [0.1, 0.1, 0.1]]
+# # import cv2
+# #
+# # image = cv2.imread("data/lesson3/notes.png")
+# #
+# # image = cv2.resize(image, (600, 600))
+# #
+# # # cv2.imshow("orig", image)
+# #
+# #
+# # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# #
+# # cv2.imshow("gray", gray)
+# #
+# # # threshold = 45
+# # # mask = gray < threshold
+# # # gray[mask] = 0
+# # # gray[~mask] = 255
+# #
+# #
+# # cv2.imshow("binar", gray)
+# #
+# # # gauss = cv2.GaussianBlur(
+# # #     gray,  # зображення з шумом
+# # #     (3, 3),   # розмір фільтру(ядра)
+# # #     sigmaX=3,    # наскільки важливими є далекі пікселі
+# # # )
+# # # cv2.imshow("gauss", gauss)
+# #
+# # bilat = cv2.bilateralFilter(
+# #     gray,  # зображення з шумом
+# #     d=4,    # розмір фільтру
+# #     sigmaColor=75,   # наскільки важливі пікселі іншого кольору
+# #     sigmaSpace=50,   # наскільки важливими є далекі пікселі
+# # )
+# #
+# # cv2.imshow("bilat", bilat)
+# #
+# #
+# #
+# #
+# # res = cv2.adaptiveThreshold(
+# #     bilat,   # зображення з текстом(чорнобіле)
+# #     255,    #  білий колір
+# #     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,   # фільтр для обрахунку порогу(гаус)
+# #     cv2.THRESH_BINARY,   # це просто треба вказати
+# #     11,   # розмір фільтру
+# #     2,          # наскільки піксель має відрізнятися від порогу
+# # )
+# #
+# # cv2.imshow("adaptive", res)
+# #
+# # cv2.waitKey(0)
+# import cv2
+#
+# # Завдання 2
+# # Відкрийте зображення data/lesson3/sudoku.jpg. Проведіть
+# # для нього бінарізацію, а саме
+# #  CLAHE
+# #  гаусове розмиття
+# #  адаптивна бінарізація
+# #  NLMean
+# # Самостійно підберіть параметри, збережіть результат.
+# # Порівняйте результати для гаусової та середньої адаптивної
+# # бінарізації
+#
+#
+#
+#
+# image =cv2.imread('data/lesson3/sudoku.jpg')
+# cv2.imshow('image',image)
+#
+# gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# cv2.imshow('gray',gray)
+#
+# clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+#
+# result = clahe.apply(gray)
+#
+# cv2.imshow("CLAHE Result", result)
+# cv2.waitKey(0)
+#
+#
+# cv2.imshow("CLAHE Result", result)
+#
+# gauss = cv2.GaussianBlur(gray,(3,3),1.5)
+# cv2.imshow("Gauss", gauss)
+#
+# res = cv2.adaptiveThreshold(
+#     result,   # зображення з текстом(чорнобіле)
+#     255,    #  білий колір
+#     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,   # фільтр для обрахунку порогу(гаус)
+#     cv2.THRESH_BINARY,   # це просто треба вказати
+#     11,   # розмір фільтру
+#     2,          # наскільки піксель має відрізнятися від порогу
+# )
+# cv2.imshow("Adaptive Threshold", res)
+#
+# res = cv2.adaptiveThreshold(
+#     gauss,   # зображення з текстом(чорнобіле)
+#     255,    #  білий колір
+#     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,   # фільтр для обрахунку порогу(гаус)
+#     cv2.THRESH_BINARY,   # це просто треба вказати
+#     11,   # розмір фільтру
+#     2,          # наскільки піксель має відрізнятися від порогу
 # )
 #
+# cv2.imshow("adaptive+gauss", res)
 #
 #
-# kernel = np.array(
-#     [[-1, -2, -1],
-#      [0., 0., 0.],
-#      [1, 2, 1]]
+# result_gray = cv2.fastNlMeansDenoising(gray, None, h=10, templateWindowSize=7, searchWindowSize=21)
+#
+# cv2.imshow("fastNlMeansDenoising", result_gray)
+#
+# res2 = cv2.adaptiveThreshold(
+#     result_gray,   # зображення з текстом(чорнобіле)
+#     255,    #  білий колір
+#     cv2.ADAPTIVE_THRESH_GAUSSIAN_C,   # фільтр для обрахунку порогу(гаус)
+#     cv2.THRESH_BINARY,   # це просто треба вказати
+#     11,   # розмір фільтру
+#     2,          # наскільки піксель має відрізнятися від порогу
 # )
-#
-# kernel = np.array(
-#     [[-1, -2, -1],
-#      [0., 0., 0.],
-#      [1, 2, 1]]
-# )
-# res = cv2.filter2D(img, -1, kernel)
-#
-# cv2.imshow('res1', res)
-#
-# kernel = np.array(
-#     [[-1, 0, 1],
-#      [-2, 0., 2],
-#      [-1, 0, 1]]
-# )
+# cv2.imshow("adapt threshold", res2)
 #
 #
-# # згортка
-# res = cv2.filter2D(img, -1, kernel)
-#
-# cv2.imshow('res', res)
-
-# # застосування -- усунення шуму
-# #img = utils.add_salt_and_pepper_noise(img, 0.001, 0.001)
-# img = utils.add_gaussian_noise(img, 0, 5)
-#
-# # гаусове розмиття
-# res = cv2.GaussianBlur(
-#     img,
-#     (13, 13),   # розмір ядра
-#     2       # чим більше тим більше розвиття
-# )
-#
-# # двосторонній фільтр
-# res = cv2.bilateralFilter(
-#     img,
-#     d=9,  # розмір ядра
-#     sigmaColor=75,   # наскільки зберігати різкість кольору
-#     sigmaSpace=75,   # те ж саме що й в GaussianBlur
-# )
-#
-# cv2.imshow('res', res)
-
-# бінарізація
-
-# зображення має бути чорно біле
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-# проста бінарізація
-# threshold = 5  # порогове значення
-#
-# res = gray.copy()
-# mask = res > threshold
-# res[mask] = 255
-# res[~mask] = 0
-
-# адаптивна бінарізація
-res = cv2.adaptiveThreshold(
-    gray,
-    255,  #  інтенчивність для білого кольору
-    cv2.ADAPTIVE_THRESH_MEAN_C,   # фурмула згортки(гаус)
-    cv2.THRESH_BINARY,    # це не чіпаємо
-    11,    # розмір ядра для згортки
-    2           # наскільки чутливою має бути бінарізація
-)
-
-cv2.imshow('res', res)
-cv2.imshow('original', img)
-cv2.waitKey(0)
+# cv2.waitKey(0)

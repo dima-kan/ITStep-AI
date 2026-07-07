@@ -1,117 +1,119 @@
-# # відео
-# # import cv2
-# #
-# # img1 = cv2. imread('data/lesson3/sonet.png')
-# # img2 = cv2. imread('data/lesson3/sudoku.jpg')
-# #
-# #
-# # cv2.imshow('orig', img1)
-# #
-# # cv2.imshow('orig', img2)   # зітре img1 та покаже лише img2
-# #
-# # cv2.waitKey(0)
+import cv2
+import numpy as np
+# cap = cv2.VideoCapture(r"data\lesson7\text.mp4")
 #
-#
-# import cv2
-#
-# # відкрити відео
-# cap = cv2.VideoCapture(
-#     0   # шлях до файлу аба 0 для камери в комп'ютері
-# )
-#
-# # інформація про відео
-# # розмір кадрів
-# print(int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)))  # ширина
-# print(int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))  # висота
-#
-# # FPS -- кількість кадрів у секунду
-# print(int(cap.get(cv2.CAP_PROP_FPS)))
-#
-# # збереження відео
-# # кодек(розширення файлу(mp4, avi, xvd))
-# fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-#
-# width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-# height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 # fps = int(cap.get(cv2.CAP_PROP_FPS))
 #
-# writer = cv2.VideoWriter(
-#     'result.mp4',  # шлях до файлу
-#     fourcc,        # кодек
+# width = 600
+# height = 800
+#
+# fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+#
+# out_writer = cv2.VideoWriter(
+#     "result.mp4",
+#     fourcc,
 #     fps,
 #     (width, height),
-#     isColor=False   # чи кадри кольорові
+#     isColor=True,
 # )
 #
-#
-# # показ відео
 # while True:
-#     # дістати наступний кадр
-#     success, img = cap.read()
+#     success, frame = cap.read()
 #
-#     # success -- True/False чи вдалось отримати кадр
 #     if not success:
-#         break  # щось сталось, зупиняємо показ кадрів
-#
-#     # обробка кадру
-#
-#     # перевести зображення в чорно біле
-#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-#
-#     # розмиття
-#     gauss = cv2.GaussianBlur(
-#         gray,
-#         ksize=(9, 9),
-#         sigmaX=1
-#     )
-#
-#     # бінарізація
-#     adapt = cv2.adaptiveThreshold(
-#         gauss,
-#         255,
-#         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-#         cv2.THRESH_BINARY,
-#         11,
-#         2
-#     )
-#
-#
-#     cv2.imshow('original', img)
-#     cv2.imshow('gray', gray)
-#     cv2.imshow('gauss', gauss)
-#     cv2.imshow('adapt', adapt)
-#     # зберегти кадр до файлу
-#     writer.write(adapt)
-#
-#     # чекаємо поки натиснеться кнопка на клавіатурі
-#     # але максимум 1 мілі секунду
-#
-#     # якщо натиснута кнопка q то зупинити відео
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
 #         break
 #
+#     new_frame = cv2.resize(frame, (width, height))
 #
-# # оримати перший кадр
-# _, img = cap.read()
-# cv2.imshow('first frame', img)
-# cv2.waitKey(0)
+#     cv2.imshow("Frame", new_frame)
 #
-# # в кінці все закрити
+#     out_writer.write(new_frame)
+#
+#     if cv2.waitKey(1) & 0xFF == ord("q"):
+#         break
+#
 # cap.release()
-# writer.release()
+# out_writer.release()
+#
 
 
-# очистка шуму методом не локальних середніх
-import cv2
 
-img = cv2.imread('data/lesson3/sonet_noised.png', cv2.IMREAD_GRAYSCALE)
-res = cv2.fastNlMeansDenoising(
-    img,
-    h=8,                  # параметр схожості
-    templateWindowSize=7, # рамка для порівняння схожості
-    searchWindowSize=11   # рамка для пошуку сусідів
-)
+# Завдання 2
+# Відкрийте відео з файлу data\lesson7\text.mp4. Проведіть
+# бінарізацію кадрів та збережіть в новий файл.
 
-cv2.imshow('orig', img)
-cv2.imshow('res', res)
-cv2.waitKey(0)
+# width = 1000
+# height = 1000
+#
+# while True:
+#     success, frame = cap.read()
+#
+#     if not success:
+#         break
+#
+#     new_frame = cv2.resize(frame, (width, height))
+#
+#     gray = cv2.cvtColor(new_frame, cv2.COLOR_BGR2GRAY)
+#
+#
+#
+#
+#
+#     gauss = cv2.GaussianBlur(
+#         gray,  # зображення з шумом
+#         (5, 5),   # розмір фільтру(ядра)
+#         sigmaX=2,    # наскільки важливими є далекі пікселі
+#     )
+#     cv2.imshow("gauss", gauss)
+#
+#     res = cv2.adaptiveThreshold(
+#         gauss,  # зображення з текстом(чорнобіле)
+#         255,  # білий колір
+#         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,  # фільтр для обрахунку порогу(гаус)
+#         cv2.THRESH_BINARY,  # це просто треба вказати
+#         11,  # розмір фільтру
+#         2,  # наскільки піксель має відрізнятися від порогу
+#     )
+#
+#     cv2.imshow("Frame", res)
+#
+#     if cv2.waitKey(50) & 0xFF == ord("q"):
+#         break
+
+
+# Відкрийте відео з файлу data\lesson7shapes.mp4.
+# Проведіть виділення країв на кадрах та збережіть в новий
+# файл.
+
+
+cap = cv2.VideoCapture(r"data\lesson7\shapes.mp4")
+
+width = 600
+height = 800
+
+
+while True:
+    success, frame = cap.read()
+
+    if not success:
+        break
+
+    new_frame = cv2.resize(frame, (width, height))
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    lower = (40,60,20)
+    upper = (65,255,255)
+
+    mask = cv2.inRange(hsv, lower, upper)
+
+    cv2.imshow("green", mask)
+
+    cv2.imshow("Frame", new_frame)
+
+
+
+
+    if cv2.waitKey(10) & 0xFF == ord("q"):
+        break
+

@@ -1,97 +1,150 @@
-# детекція об'єктів(YOLO)
-
 import ultralytics
 import cv2
+from torch.xpu import device
 
-# створення моделі
-model = ultralytics.YOLO('yolov8s.pt')
+# Завдання 1
+# Отримайте перший кадр з файлу data\lesson8\animals.mp4
+# та виведіть його на екран.
+# Проведіть детекцію об’єктів зо допомогою YOLO та
+# виведіть результати.
+# Змініть параметри моделі conf та iou і подивіться як це
+# впливає на результат.
+# Отримайте рамки для кожного об’єкта, виріжіть їх та
+# виведіть як окремі зображення
 
-# отримати зображення з ввідео
-cap = cv2.VideoCapture('data/lesson8/cars+bikes.mp4')
+
+
+model = ultralytics.YOLO("yolo11s.pt")
+
+cap = cv2.VideoCapture(r"data\lesson8\animals.mp4")
+
 success, img = cap.read()
 
-img = cv2.resize(img, None, fx=0.5, fy=0.5)
-
-cv2.imshow('original', img)
-
-# застосування моделі
-# predict може отримувати декілька зображень за раз
-# predict([img1, img2, img3]) і тому results це список
-# [result1, result2, result3]
+# cv2.imshow("original", img)
 
 results = model.predict(
-    img,    # саме зображення
-    device='cpu',    # процесор де запускати модель
-                     # cpu -- звичайний процес
-                     # cuda -- графічний процесор
-    conf=0.25,       # мінімальній відсоток для об'єкта щоб попасти в result
-    iou=0.7,        # максимально можливий рівень перетину рамок(якщо більше то вважаємо
-                    # що це рамки для одного й того самого об'єкта)
-    classes=[0, 1]  # id класів які детектити
+    img,
+    device = "cuda:0",
+    conf = 0.5,
+    iou = 0.7
 )
 
-
-# results -- список з одним елементом
 result = results[0]
 
-# отримати назви класів(об'єкти які вмієме визначати модель)
-names = result.names # dict --- id: str
-print(names)
+res = result.plot()
 
-# самі об'єкти
-cls = result.boxes.cls
-print(cls)
+print(result)
 
-# візуалізація результів
-res_img = result.plot()
-cv2.imshow('result', res_img)
-
-
-# ймовірності
-conf = result.boxes.conf
-print(conf)
-
-
-# рамка(box)
+# cv2.imshow("result", res)
+#
 boxes = result.boxes
-
-# отримати перший об'єкт
-box = boxes[0]
-
-print(box)
-
-# координати
-xyxy = box.xyxy[0]
-
-# переведення координат в int
-x1, y1, x2, y2 = map(int, xyxy)
-
-# вирізати об'єк з всього зображення
-# y -- відповідають за рядки
-# x -- відповідають за стовпчики
-roi = img[y1:y2, x1:x2]
-
-cv2.imshow('object', roi)
-
-
-# # відео
-# while True:
-#     success, img = cap.read()
+# box1 = boxes[0]
+# print(box1)
 #
-#     if not success:
-#         break
+# cls = box1.cls
+# print(cls)
 #
-#     img = cv2.resize(img, None, fx=0.5, fy=0.5)
+# conf = box1.conf
+# print(conf)
 #
-#     results = model.predict(img)
-#     result = results[0]
+# xyxy = box1.xyxy
+# print(xyxy)
 #
-#     res_img = result.plot()
 #
-#     cv2.imshow('result', res_img)
 #
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         break
+# cls = cls.cpu().numpy()
+# conf = conf.cpu().numpy()
+# xyxy = xyxy.cpu().numpy().astype(int)
+#
+#
+#
+# x1, y1, x2, y2 = xyxy[0]
+#
+#
+# box1_img = img[y1:y2, x1:x2]
+#
+#
+#
+# names = result.names
+# name = names[cls[0]]
+#
+# print(conf[0])
+# print(name)
+#
+# cv2.imshow(f"{name},{conf[0]*100:.2f}", box1_img)
+# cv2.waitKey(0)
 
+for box in boxes:
 
+    cls = box.cls
+
+    conf = box.conf
+
+    xyxy = box.xyxy
+
+    cls = cls.cpu().numpy()
+    conf = conf.cpu().numpy()
+    xyxy = xyxy.cpu().numpy().astype(int)
+
+    x1, y1, x2, y2 = xyxy[0]
+
+    box1_img = img[y1:y2, x1:x2]
+
+    names = result.names
+    name = names[cls[0]]
+
+    print(conf[0])
+    print(name)
+
+    cv2.imshow(f"{name},{conf[0] * 100:.2f}", box1_img)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+while True:
+    success, frame = cap.read()
+
+    if not success:
+        break
+
+    results = model.predict(
+        frame,
+        device="cuda:0",
+        conf=0.5,
+        iou=0.7
+    )
+
+    result = results[0]
+
+    boxes = result.boxes
+
+    for i in range(len(boxes)):
+        
+        box = boxes[i]
+        
+        cls = box.cls
+
+        conf = box.conf
+
+        xyxy = box.xyxy
+
+        cls = cls.cpu().numpy()
+        conf = conf.cpu().numpy()
+        xyxy = xyxy.cpu().numpy().astype(int)
+
+        x1, y1, x2, y2 = xyxy[0]
+
+        box1_img = frame[y1:y2, x1:x2]
+
+        names = result.names
+        name = names[cls[0]]
+
+        print(conf[0])
+        print(name)
+
+        cv2.imshow(f"{name}_{i}", box1_img)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+
+cv2.destroyAllWindows()

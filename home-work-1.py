@@ -50,7 +50,7 @@ import numpy as np
 
 
 # mask = nums % 2
-# result = nums[mask] чому воно бере як індекси [4,4,4] звідки 4 ?
+# result = nums[mask]
 # print(mask)
 
 

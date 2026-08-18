@@ -26,8 +26,7 @@ while True:
     if question == "":
         break
 
-    history.append(f"Human: {question}")
-    history_text = "\n".join(history)
+    history.append(f"Human: {question}\n")
 
     prompt = f"""
        Ти консультант з питань повернення товару. Відповідай на запитання клієнтів на основі правил нижче.
@@ -36,7 +35,7 @@ while True:
        {rules}
 
        Історія діалогу:
-       {history_text}
+       {history}
 
        Інструкція
        Відповідай тільки на ті положення, що є в правилах.

@@ -1,99 +1,105 @@
-import os
 import dotenv
-
+import os
+from parser import chain
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import (
     HumanMessage,
     AIMessage,
     SystemMessage,
-    trim_messages, BaseMessage
+    trim_messages,
 )
 
-
-# завантаження апі ключа
 dotenv.load_dotenv()
+
 api_key = os.getenv("GEMINI_API_KEY")
 
-# створити llm
+
+# # модель
 llm = ChatGoogleGenerativeAI(
-    model='gemini-2.5-flash-lite',
-    api_key=api_key,
+    model="gemini-3.5-flash-lite",   # назва моделі
+    api_key=api_key    # ключ до сервера з моделлю
 )
 
-# # історія повідомлень
+
+
+# Завдання 1
+# Напишіть чат бота, який спілкується у стилі різних
+# персонажів книг\фільмів або відомих людей. Ким саме бути
+# чат бот вирішує з повідомлення від користувача.
+# Якщо персонаж або книга невідомі, то відповісти що
+# невідома інформація та запропонувати декілька відомих
+# прикладів на вибір
+
 # messages = [
-#     # перше повідомлення з основними інструкціями(промпт)
-#     SystemMessage(
-#         """
-#         Ти -- ввічливий чат бот, твоя зада давити короткі та
-#         чіткі відповіді на питання
-#         """
-#     ),
-#     HumanMessage("Привіт"),
-#     AIMessage("Привіт, щоб ти зотів дізнатись?"),
-#     HumanMessage("Порекомендуй цікавий фільм про космос")
-# ]
+#
+#     SystemMessage("""
+#     Ти -- ввічливий чатбот
+#     Твоя задача підтримувати спілкування з користувачем у  стилі різних
+#     персонажів книг\фільмів або відомих людей. Ким саме бути
+#     вирішуй з повідомлення від користувача.
+#
+#     ###ІНСТРУКЦІЇ###
+#     1. Відповіді мають дути короткими(до 2 речень)
+#     2.Якщо персонаж або книга невідомі, то відповісти що
+#     невідома інформація та запропонувати декілька відомих
+#     прикладів на вибір
+#     """)]
 #
 #
-# # дати відповідь на очтаннє повідомлення
-# # враховуючи історію спілкування та основні інструкції
+# while True:
+#     user_text = input("Ви: ")
 #
-# response = llm.invoke(messages)
+#     if user_text == "":
+#         break
 #
-# print(type(response))
-# print(response)
-# print(repr(response))
+#     human_message = HumanMessage(content=user_text)
+#
+#     messages.append(human_message)
+#
+#     response = llm.invoke(messages)
+#
+#     print(f"AI: {response.text}")
+#
+#     messages.append(response)
 
 
-# простий чатбот
 
-# історія повідомлень
-# на початку лише інструкції
+
+
+
+
+# авдання 2
+# Напишіть чат бота, який дає відповіді на питання
+# стосовно умов повернення товару.
+# Якщо користувач запитує щось інше, то відповідати що
+# немає інформації.
+# Застосуйте обмеження історії(можна десь 5 повідомлень)
+
+# with open("data/lesson9/return_policy.txt", "r",encoding="utf-8") as f:
+#     rules = f.read()
+#
+#
+#
+#
 # messages = [
 #     SystemMessage(
-#         """
-#         Ти -- ввічливий чат бот, який імітує Толкіна. Давай короткі відповіді
-#         на питання користувача
-#         """
+#     f"""
+#     Ти - консультант магазину.
+#     Твоя задача давати відповіді на питання стосовно умов повернення товару.
+#
+#
+#     ###ІНСТРУКЦІЇ###
+#     1. Відповіді мають дути короткими(до 2 речень)
+#     2.Якщо користувач запитує щось інше, то відповідати що немає інформації.
+#     3.Нічого не вигадуй, відповідай за правилами повернення, якщо в правилах не вистачає інформації пиши, що ти не знаєш.
+#
+#     ###ПРАВИЛА ПОВЕРНЕННЯ###
+#     {rules}
+#     """
 #     )
 # ]
 #
-# while True:
-#     user_query = input("Ви: ")
 #
-#     # закіцнчуємо якщо натиснути Enter
-#     if user_query == '':
-#         break
-#
-#     # переволимо повідомлення в HumanMessage
-#     human_message = HumanMessage(user_query)
-#
-#     # добавляємо до історії повідомлень
-#     messages.append(human_message)
-#
-#     # запускаємо модель
-#     response = llm.invoke(messages)
-#
-#     # response -- AIMessage
-#     # добавляємо до історії повідомлень
-#     messages.append(response)
-#
-#     # вивести відповідь
-#     print(f"AI: {response.content}")
-#
-#     # вивести саму історії спілкування
-#     print()
-#     print("####ІСТОРІЯ####")
-#
-#     for message in messages:
-#         print(repr(message))
-#
-#     print()
-
-
-# очищення історії
-
-# # створення трімера повідомлень
 # trimmer = trim_messages(
 #     strategy='last',  # залишати останні повідомлення
 #
@@ -105,104 +111,107 @@ llm = ChatGoogleGenerativeAI(
 #     include_system=True  # SystemMessage не чіпати
 # )
 #
-# messages = [
-#     SystemMessage(
-#         """
-#         Ти -- ввічливий чат бот, який імітує Толкіна. Давай короткі відповіді
-#         на питання користувача
-#         """
-#     )
-# ]
 #
 # while True:
-#     user_query = input("Ви: ")
+#     user_text = input("Ви")
 #
-#     # закіцнчуємо якщо натиснути Enter
-#     if user_query == '':
+#     if user_text == "":
 #         break
 #
-#     # переволимо повідомлення в HumanMessage
-#     human_message = HumanMessage(user_query)
+#     human_message = HumanMessage(content=user_text)
 #
-#     # добавляємо до історії повідомлень
+#
 #     messages.append(human_message)
 #
-#     # застововуємо трімер
 #     messages = trimmer.invoke(messages)
 #
-#     # запускаємо модель
 #     response = llm.invoke(messages)
 #
-#     # response -- AIMessage
-#     # добавляємо до історії повідомлень
+#     print(f"AI: {response.text}")
+#
 #     messages.append(response)
 #
-#     # вивести відповідь
-#     print(f"AI: {response.content}")
-#
-#     # вивести саму історії спілкування
-#     print()
-#     print("####ІСТОРІЯ####")
-#
-#     for message in messages:
-#         print(repr(message))
-#
-#     print()
 
-# можна зробити ланцюг
 
-# створення трімера повідомлень
-trimmer = trim_messages(
-    strategy='last',  # залишати останні повідомлення
 
-    token_counter=len,  # рахуємо кількість повідомлень
-    max_tokens=5,  # залишати максимум 5 повідомлення(System, AI, Human)
+# Завдання 3
+# Напишіть чат бота, який допомагає у вивченні
+# англійської мови з наступним функціоналом:
+#  якщо користувач просить перекласти слово або фразу
+# то дається переклад слова та приклад використання в
+# реченні
+#  якщо користувач просить перекласти речення, то
+# Практичне завдання
+# дається переклад самого речення, а також пояснення
+# граматики, наприклад структура there is\are, питання в
+# різних часових формах, тощо.
+# Приклади реалізуйте як HumanMessage та AIMessage
 
-    start_on='human',  # історія завжди починатиметься з HumanMessage
-    end_on='human',  # історія завжди закінчуватиметься з HumanMessage
-    include_system=True  # SystemMessage не чіпати
-)
-
-# створити ланцюг
-chat_chain = trimmer | llm
 
 messages = [
     SystemMessage(
-        """
-        Ти -- ввічливий чат бот, який імітує Толкіна. Давай короткі відповіді
-        на питання користувача
-        """
+    r"""
+    Ти - досвічений вчитель англійської  мови.
+    Твоя допомагати вивчити англійську мову.
+
+
+    ###ІНСТРУКЦІЇ###
+    1. якщо користувач просить перекласти слово або фраз то дається переклад слова та приклад використання в реченні
+    2.якщо користувач просить перекласти речення, то дається переклад самого речення,
+    а також пояснення граматики, наприклад структура there is\are, питання в різних часових формах, тощо.
+    """
+    ),
+    HumanMessage(
+    "Переклади слово awesome"
+    ),
+    AIMessage(
+    "Переклад: дивовижний, неймовірний  Ось приклад в реченніYou look awesome! --- Ти виглядаєш чудово!"
     )
 ]
 
-while True:
-    user_query = input("Ви: ")
 
-    # закіцнчуємо якщо натиснути Enter
-    if user_query == '':
+while True:
+    user_text = input("Ви")
+
+    if user_text == "":
         break
 
-    # переволимо повідомлення в HumanMessage
-    human_message = HumanMessage(user_query)
+    human_message = HumanMessage(content=user_text)
 
-    # добавляємо до історії повідомлень
+
     messages.append(human_message)
 
-    # запускаємо ланцюг
-    response = chat_chain.invoke(messages)
 
-    # response -- AIMessage
-    # добавляємо до історії повідомлень
+
+
+    response = llm.invoke(messages)
+
+    data = {
+        "text": response.text
+    }
+
+    eng_words = chain.invoke(data)
+
+    print(f"AI: {response.text}")
+    print(eng_words)
+
     messages.append(response)
 
-    # вивести відповідь
-    print(f"AI: {response.content}")
 
-    # вивести саму історії спілкування
-    print()
-    print("####ІСТОРІЯ####")
 
-    for message in messages:
-        print(repr(message))
+# Завдання 4
+# Модифікуйте попереднє завдання таким чином, щоб в
+# SystemMessage передавався список вивчених слів
+# користувачем.
+# Для цього напишіть окрему модель яка буде діставати з
+# відповіді(AIMessage) усі англійські слова(вважаємо що
+# користувач знає лише ті слова, про які йому сказала модель).
+# Список вивчених слів треба зберігати в json файлі та
+# відвантажувати при запуску програми.
+# Змініть функціонал таким чином:
+#  якщо користувач просить перекласти слово або фразу
+# то дається переклад слова та приклад використання в
+# реченні з вивченими словами
+#  якщо користувач просить перекласти речення, то
+# додатково пояснюється значення невідомих слів
 
-    print()

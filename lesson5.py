@@ -1,132 +1,164 @@
-# створення агентів
-# агент -- чат-бот(llm) + інструменти
-
-import os
 import dotenv
+import os
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain.agents import create_agent
+from langchain_core.tools import tool
+from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_core.messages import (
     HumanMessage,
     AIMessage,
     SystemMessage,
-    trim_messages, BaseMessage
+    BaseMessage,
+    trim_messages,
 )
 
-
-# завантаження апі ключа
 dotenv.load_dotenv()
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-serper_api_key = os.getenv("SERPER_API_KEY")
 
-# створити llm
+api_key = os.getenv("GEMINI_API_KEY")
+serper_key = os.getenv("SERPER_API_KEY")
+# # модель
 llm = ChatGoogleGenerativeAI(
-    model='gemini-2.5-flash',
-    api_key=gemini_api_key,
+    model="gemini-3.5-flash-lite",   # назва моделі
+    api_key=api_key    # ключ до сервера з моделлю
 )
 
-# інструмент -- функція
-# обов'язкова документація
 
-def product(a: int, b: int) -> int:
+serper_search = GoogleSerperAPIWrapper(
+    serper_api_key=serper_key
+)
+
+
+
+
+# авдання 1
+# Напишіть функцію яка перевіряє складність паролю:
+#  кількість символів(>8)
+#  наявність хоча б однієї літери\цифри\спеціального
+# символу
+#  наявність літер в різних регістрах
+# Функція повертає тест з описом паролю(що добре, а що
+# погано)
+# На основі цієї функції створіть агента.
+
+
+def count_char(password:str):
+    total_alpha = 0
+    total_digit = 0
+    total_special = 0
+    total_upper = 0
+    total_lower = 0
+    for char in password:
+        if char.isalpha():
+            total_alpha += 1
+        elif char.isdigit():
+            total_digit += 1
+        else:
+            total_special += 1
+
+        if char.isupper():
+            total_upper += 1
+
+        if char.lower():
+            total_lower += 1
+
+
+
+
+    return total_alpha, total_digit, total_special , total_upper, total_lower
+
+
+
+
+
+@tool
+def password_check(password:str):
     """
-    Множить 2 цілих числа то повертає їхній добуток
+    Перевірка складності паролю
 
-    :param a: перше число
-    :param b: друге число
-    :return: добуток чисел
-    """
-    print("hello from product")
-    return a * b
-
-
-def get_weather(city: str, time: str) -> str:
-    """
-    Повертає інформацію про погоду у місті в певний час доби
-
-    :param city: назва міста
-    :param time: час доби(наприклад ранок, вечір, 10:30, 4 години дня)
-    :return: інформація про погоду
-    """
-    print("hello from get_weather")
-    return f"У {city} о {time} буде сонячно"
-
-
-# інструмент для пошуку в інтернеті
-searcher = GoogleSerperAPIWrapper(serper_api_key=serper_api_key)
-
-def search(query: str) -> str:
-    """
-    Шукає інформацію в інтернеті за запитом користувача
-
-    :param query: запит користувача
-    :return: результати пошуку
+    :param password: str -- пароль
+    :return:
     """
 
-    results = searcher.results(query)
-    print(results)  # результати пошуку
+    if len(password) < 8:
+        return "В паролі має бути більше 8 символів"
 
-    return str(results)
+    total_alpha, total_digit, total_special,total_upper, total_lower = count_char(password)
+
+    print(total_alpha, total_digit, total_special, total_upper, total_lower)
+
+    if total_alpha == 0:
+        return "В паролі має бути літри"
+
+    if total_digit == 0:
+        return "В паролі має бути цифри"
 
 
-# створення агента
+    if total_special == 0:
+        return "В паролі має бути спеціальні символи"
+
+    if total_upper == 0:
+        return "В паролі має бути велика літера"
+
+    if total_lower == 0:
+        return "В паролі має бути маленька літера "
+
+    else:
+        return "Пароль чудовий"
+
+@tool
+def search_person(name:str):
+    """
+    Пошук інформації про людину
+    :param name:str - ім'я людини
+    :return:
+    """
+    result = serper_search.results(f"Новини про {name}")
+    print("hi")
+    return result
+
+
 agent = create_agent(
-    model=llm,   # мовна модель
-    tools=[product, get_weather, search]
-)
+    model=llm,
+    tools=[password_check,search_person]
+    )
 
-# історія повідомлень + інструкції
 
 messages = [
-    SystemMessage(
-        """
-        Ти ввічлий чат-бот. Твоя задача давати інформативні та чіткі відповіді
-        на запити користувача.
-        
-        У тебе є доступ до таких інструментів:
-        * product
-        * get_weather
-        * search -- завжди давай посилання на новини
-        """
-    )
+    SystemMessage("""
+    
+    Ти -- ввічливий чат бот 
+    
+    """)
 ]
 
 while True:
-    user_query = input("Ви: ")
+    query = input("Ви")
 
-    if user_query == '':
+    if query == "":
         break
 
-    # переводимо str рядок у  HumanMessage
-    human_message = HumanMessage(user_query)
 
-    # добавляємо повідослення користувача до історії
-    messages.append(human_message)
+    user_message = HumanMessage(query)
 
-    # застосування агента
-    # треба передавати словник
-    input_data = {
+    messages.append(user_message)
+
+    data = {
         "messages": messages
     }
 
-    response = agent.invoke(input_data)
-    # response -- словник з усією історією + відповідь моделі
-
-    # отримання всіє історії повідомлень
-    messages = response['messages']
-
-    # отримати фінальну відповідь моделі
-    answear = messages[-1]
-    print(answear.content)
-
-    # виведемння всієї історії
-    print()
-    print("Історія")
-
-    for message in messages:
-        print(repr(message))
+    data = agent.invoke(data)
 
 
+    messages = data["messages"]
+
+    response = messages[-1]
+
+    print(response.text)
 
 
+# Завдання 2
+# Напишіть модель показує останні новини про певну
+# людину. Якщо користувач вводить не ім’я людини, то вивести
+# повідомлення «немає відповідної інформації»
+# Скористайтесь DuckDuckGoSearchRun

@@ -1,116 +1,94 @@
-# пошук потрібного документа
-# RAG -- (пошук - відповідь - генерація)
+import dotenv
+import os
 
-# документ1 -- Суп корисний при застуді
-# документ2 -- Суп придумали в Китаї
-# документ3 -- Бігати більше 10 км шкідливо для здоров'я
+# Завдання 1
+# Створіть векторну базу даних, де кожен документ – це
+# вміст файлу з папки data/lesson_rag/files
+#  добавте в метадані шлях до файлу
+#  створіть для кожного документу ID
+#  збережіть створені ID та назви відповідних файлів в
+# окремий json файл
+# Перевірте чи працює правильно пошук
+
+
+
 
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
 from langchain_core.documents import Document
-
-import os
-import dotenv
 from uuid import uuid4
+from pinecone import ServerlessSpec
+from pinecone import Pinecone
 
-# завантаження апі ключа
+
 dotenv.load_dotenv()
-gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+api_key = os.getenv("GEMINI_API_KEY")
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 
-# модель для кодування текстів(embedding model)
-embeddings = GoogleGenerativeAIEmbeddings(
-    model="models/text-embedding-004",
-    google_api_key=gemini_api_key
+
+
+embedding = GoogleGenerativeAIEmbeddings(
+    model="gemini-embedding-001",
+    api_key=api_key,
 )
 
-# # кодування текстів
-# # отримані числа називають вектор
-# vec1 = embeddings.embed_query("Суп корисний при застуді")
-#
-# print(vec1)
-# print(len(vec1))
-#
-# vec2 = embeddings.embed_query("При застуді корисно їсти суп")
-# print(vec2)
-#
-# vec3 = embeddings.embed_query("Бігати більше 10 км шкідливо для здоров'я")
-# print(vec3)
 
-# створення весторної бази даних
 pc = Pinecone(api_key=pinecone_api_key)
-index_name = "soup"  # назва бази даних
+
+index_name = "data-try"
+
 
 if not pc.has_index(index_name):
     pc.create_index(
         name=index_name,
-        dimension=768,      # кількість чисел при кодування
-        metric="cosine",    # формула для схожості
+        dimension=3072,    # кількість чисел у векторі
+        metric="cosine",   # формула для пошуку схожих текстів
         spec=ServerlessSpec(
-            cloud="aws",         # хмарний сервер(амазон)
-            region="us-east-1"   # регіон(Каліфорнія)
+            cloud="aws",        # хмарна платформа(амазон)
+            region="us-east-1"  # регіон
         ),
     )
 
 index = pc.Index(index_name)
+
 vector_store = PineconeVectorStore(
-    index=index,
-    embedding=embeddings
+    index=index,          # база даних
+    embedding=embedding   # модель для кодування
 )
 
-# створення документів
+with open("data/lesson_rag/files/future_of_ai.txt","r",encoding="utf-8") as f:
+    text1 = f.read()
 
-# документ1 -- Суп корисний при застуді
+with open("data/lesson_rag/files/intro.txt","r",encoding="utf-8") as f:
+    text2 = f.read()
+
+with open("data/lesson_rag/files/machine_learning.txt","r",encoding="utf-8") as f:
+    text3 = f.read()
+
+with open("data/lesson_rag/files/neural_networks.txt","r",encoding="utf-8") as f:
+    text4 = f.read()
+
+
 doc1 = Document(
-    page_content="Суп корисний при застуді",   # вміст дукумента
-    metadata={               # додаткова інформація
-        "type": "здоров'я",
-        "author": "Anton Halysh"
-    }
+    page_content=text1,
 )
 
-
-# документ2 -- Суп придумали в Китаї
 doc2 = Document(
-    page_content="Суп придумали в Китаї",   # вміст дукумента
-    metadata={               # додаткова інформація
-        "type": "історія",
-        "author": "Anton Halysh",
-        "date": "2025 01 07"
-    }
+    page_content=text2,
 )
-
-# документ3 -- Бігати більше 10 км шкідливо для здоров'я
 doc3 = Document(
-    page_content="Бігати більше 10 км шкідливо для здоров'я",   # вміст дукумента
-    metadata={               # додаткова інформація
-        "type": "здоров'я",
-        "author": "Unknown"
-    }
+    page_content=text3,
+)
+doc4 = Document(
+    page_content=text4,
 )
 
-# список документів
-docs = [doc1, doc2, doc3]
+documents = [doc1, doc2, doc3, doc4]
 
-# створення унікальних id для документів
-ids = [str(uuid4()) for _ in range(len(docs))]
+uuids = [str(uuid4()) for _ in range(len(documents))]
 
-# print(ids)
-
-# завантаження документів у базу даних
-# vector_store.add_documents(
-#     documents=docs,
-#     ids=ids
-# )
-
-# отримати схожі документи
-user_input = "Чи шкідливо бігати більше 10 км?"
-
-result_docs = vector_store.similarity_search(
-    user_input,   # текст для порівняння схожості
-    k=2,          # кількість документів у відповіді
+vector_store.add_documents(
+    documents=documents,
+    ids=uuids
 )
-
-for doc in result_docs:
-    print(doc)

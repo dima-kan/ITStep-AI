@@ -1,133 +1,144 @@
-# створення агентів
-# агент -- чат-бот(llm) + інструменти
-
-import os
 import dotenv
-from typing import List
+import os
+import json
 
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from pinecone import Pinecone, ServerlessSpec
-from langchain_pinecone import PineconeVectorStore
-from langchain_core.documents import Document
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langgraph.prebuilt import create_react_agent
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from langchain.agents import create_agent
+from langchain_core.tools import tool
+from langchain_community.utilities import GoogleSerperAPIWrapper
+from pinecone import ServerlessSpec
+from pinecone import Pinecone
 from langchain_core.messages import (
     HumanMessage,
     AIMessage,
     SystemMessage,
-    trim_messages, BaseMessage
+    BaseMessage,
+    trim_messages,
 )
 
-# завантаження апі ключа
+
+
+# Завдання 1
+# Створіть векторну базу даних, де кожен документ – це
+# вміст файлу з папки data/lesson_rag/files
+#  добавте в метадані шлях до файлу
+#  створіть для кожного документу ID
+#  збережіть створені ID та назви відповідних файлів в
+# окремий json файл
+# Перевірте чи працює правильно пошук
+
+
 dotenv.load_dotenv()
-gemini_api_key = os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("GEMINI_API_KEY")
 pinecone_api_key = os.getenv("PINECONE_API_KEY")
 
-# створити llm
+
 llm = ChatGoogleGenerativeAI(
-    model='gemini-2.5-flash',
-    api_key=gemini_api_key,
+    model="gemini-3.5-flash-lite",  # назва моделі
+    api_key=api_key  # ключ до сервера з моделлю
+)
+embedding = GoogleGenerativeAIEmbeddings(
+    model="gemini-embedding-001",
+    api_key=api_key,
 )
 
-# модель для кодування текстів(embedding model)
-embeddings = GoogleGenerativeAIEmbeddings(
-    model="models/text-embedding-004",
-    google_api_key=gemini_api_key
-)
-
-# створення весторної бази даних
 pc = Pinecone(api_key=pinecone_api_key)
-index_name = "soup"  # назва бази даних
+
+index_name = "data-try"  # назва бази даних
 
 if not pc.has_index(index_name):
     pc.create_index(
         name=index_name,
-        dimension=768,      # кількість чисел при кодування
-        metric="cosine",    # формула для схожості
+        dimension=3072,    # кількість чисел у векторі
+        metric="cosine",   # формула для пошуку схожих текстів
         spec=ServerlessSpec(
-            cloud="aws",         # хмарний сервер(амазон)
-            region="us-east-1"   # регіон(Каліфорнія)
+            cloud="aws",        # хмарна платформа(амазон)
+            region="us-east-1"  # регіон
         ),
     )
 
 index = pc.Index(index_name)
+
 vector_store = PineconeVectorStore(
-    index=index,
-    embedding=embeddings
+    index=index,          # база даних
+    embedding=embedding   # модель для кодування
 )
 
-
-# інструмент -- функція
-# обов'язкова документація
-def search_doc(user_query: str) -> List[Document]:
+@tool
+def document_search(query:str):
     """
-    Шукає схожі документи з релевантної інформацією до запиту користувача
+    Пошук документів у векторній базі даних
 
-    :param user_query: запит користувача
-    :return: список документів з релевантною інформацією
+    База даних містить інформацію про штучний інтелект
+    :param query:str -- запит користувача
+    :return: знайдені документи
     """
-    result_docs = vector_store.similarity_search(
-        user_query,  # текст для порівняння схожості
-        k=2,         # кількість документів у відповіді
+    result = vector_store.similarity_search(
+        query,
+        k=1
     )
+    print(result)
+    return result
 
-    return result_docs
 
 
-# створення агента
-agent = create_react_agent(
-    model=llm,  # мовна модель
-    tools=[search_doc]
+agent = create_agent(
+    model=llm,  # нейромережа агента
+    tools=[document_search],  # список інструментів
 )
-
-# історія повідомлень + інструкції
 
 messages = [
-    SystemMessage(
-        """
-        Ти ввічлий чат-бот. Твоя задача давати інформативні та чіткі відповіді
-        на запити користувача.
+    SystemMessage("""
+    Ти -- ввічливий чат бот
 
-        У тебе є доступ до таких інструментів:
-        * search_doc -- цукає інформацію в базі даних що містить:
-            * інформація про суп
-            * інформація про здоров'я
-        """
-    )
+    ###ІНСТРУКЦІЯ###
+    1.Якщо користувач питає про штучний інтелект то використовуй document_search
+    2.Якщо не має інформації в документах то нічого не вигадуй
+    """)
 ]
 
 while True:
+    # Запит від користувача
     user_query = input("Ви: ")
 
-    if user_query == '':
+    # умова закінчення
+    if user_query == "":
         break
 
-    # переводимо str рядок у  HumanMessage
-    human_message = HumanMessage(user_query)
+    # зробити human message
+    user_message = HumanMessage(user_query)
 
-    # добавляємо повідослення користувача до історії
-    messages.append(human_message)
+    # добавляємо повідомлення в історію
+    messages.append(user_message)
 
-    # застосування агента
-    # треба передавати словник
-    input_data = {
+    # отримати відповіть від агента
+    # агент сам дадає повідемлення в історію і повертає її
+
+    # агент треба передавати словник зі ключем "messages"
+    data = {
         "messages": messages
     }
 
-    response = agent.invoke(input_data)
-    # response -- словник з усією історією + відповідь моделі
+    data = agent.invoke(data)
+    # агент так само повертає словник
 
-    # отримання всіє історії повідомлень
-    messages = response['messages']
+    # дістаємо нову історію повідомлень
+    messages = data["messages"]
 
-    # отримати фінальну відповідь моделі
-    answear = messages[-1]
-    print(answear.content)
+    # відповідь моделі -- останнє повідомлення в історії
+    response = messages[-1]
 
-    # виведемння всієї історії
+    # вивести відповідь на екран
+    print(response.text)
+
+    # виведення історії
     print()
-    print("Історія")
+    print("----------ІСТОРІЯ-----------")
 
     for message in messages:
-        print(repr(message))
+        print(repr(message))  # вивести разом з назсою класу
 
+    print("-----------------------------")
+    print()

@@ -23,21 +23,21 @@ embedding = GoogleGenerativeAIEmbeddings(
 )
 
 
-index_name = "data-task-6"
+index_name = "data-task-6"  # назва бази даних
 
 pc = Pinecone(api_key=pinecone_api_key)
+
 
 if not pc.has_index(index_name):
     pc.create_index(
         name=index_name,
-        dimension=3072,
-        metric="cosine",
+        dimension=3072,    # кількість чисел у векторі
+        metric="cosine",   # формула для пошуку схожих текстів
         spec=ServerlessSpec(
-            cloud="aws",
-            region="us-east-1"
+            cloud="aws",        # хмарна платформа(амазон)
+            region="us-east-1"  # регіон
         ),
     )
-
 index = pc.Index(index_name)
 
 vector_store = PineconeVectorStore(

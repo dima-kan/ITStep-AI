@@ -37,14 +37,10 @@ if person:
         ]
 
     user_query = st.chat_input("Питання")
-
-    # Виводимо попередню історію
     for message in st.session_state.history:
-        # не показувати SystemMessage
         if isinstance(message, SystemMessage):
             continue
 
-        # отримуємо тип повідомлення
         role = ""
         if isinstance(message, HumanMessage):
             role = "user"
@@ -53,7 +49,6 @@ if person:
 
     if user_query:
 
-        # Повідомлення користувача
         human_message = HumanMessage(content=user_query)
 
         st.session_state.history.append(human_message)
@@ -61,13 +56,10 @@ if person:
         with st.chat_message("user"):
             st.markdown(user_query)
 
-        # Отримуємо відповідь
         response = llm.invoke(st.session_state.history)
 
-        # Додаємо відповідь до історії
         st.session_state.history.append(response)
 
-        # Виводимо відповідь
         with st.chat_message("assistant"):
             st.markdown(response.text)
 

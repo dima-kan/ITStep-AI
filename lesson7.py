@@ -18,11 +18,9 @@ llm = ChatGoogleGenerativeAI(
 )
 
 
-# Вибір відомої людини
+
 person = st.text_input("З ким хочеш спілкуватися?")
 
-
-# Створюємо історію після вибору людини
 if person:
 
     if "history" not in st.session_state:
